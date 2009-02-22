@@ -1,11 +1,10 @@
-use Test::More tests => 72;
+use Test::More tests => 74;
 
 use strict;
 use warnings;
 use IO::Socket;
 use POSIX qw( WNOHANG );
 use Fatal qw(open close );
-use Time::HiRes qw(usleep);
 
 my (%hasnt);
 my $gotfile;
@@ -67,7 +66,7 @@ reject me
 END_OF_FAIL
 
 SKIP: {
-    skip "Net::Server::Mail not installed" if exists $hasnt{netservermail};
+    skip "Net::Server::Mail not installed",72 if exists $hasnt{netservermail};
     # Fork and run the server as a child
     my $pid;
     if ($pid=fork()) {
@@ -86,11 +85,18 @@ SKIP: {
     ok( $smtp = Net::SMTP::Pipelining->new("127.0.0.1",
                                            Port => $smtp_port,
                                            Debug => $dbg), "Successful SMTP connection to non-pipelining server made");
-    ok(!$smtp->pipeline({ mail => $address[0],
-                          to => $address[0],
-                          data => $message,
-                        }), "Failed if server does not advertise pipelining support");
 
+  SKIP: {
+        skip "Test::Warn not installed",3 if exists $hasnt{testwarn};
+        warning_like { ok(!$smtp->pipeline({ mail => $address[0],
+                                             to => $address[0],
+                                             data => $message,
+                        }),"Failed if server does not advertise pipelining support"); }
+        qr/^Server does not support PIPELINING/, "Gives correct warning for non-pipelining server";
+        like ( $smtp->pipe_errors()->[0]{message},
+               qr/^Server does not support PIPELINING, banner was/,
+               "Correct error in pipe_errors");
+    }
     ok($smtp->quit(), "Connection closed");
 
     ok( $smtp = Net::SMTP::Pipelining->new("127.0.0.1",
@@ -136,14 +142,15 @@ SKIP: {
                     succeeded => $srcpt ,
                 },
                    "Recipients correctly reported");
+
         # This is somewhat convoluted, but seems the best way to reliably wait for Net::Server::Mail
         # to finish writing the received mail without always having to wait for an inordinate amount
         # of time.
         my $toolong = 5;
         my $totalwait = 0;
         while (-e $lockfile && $totalwait<$toolong) {
-            usleep (10000);
-            $totalwait += 0.01;
+            sleep 1;
+            $totalwait += 1;
         }
 
         ok (-e $gotfile,"mail has been received");

@@ -1,11 +1,12 @@
 package Net::SMTP::Pipelining;
 
-use version; $VERSION = qv('0.0.1');
+use version; $VERSION = qv('0.0.2');
 
 use strict;
 use warnings;
 use Net::Cmd;
 use IO::Socket;
+use Data::Dump::Streamer;
 
 use base("Net::SMTP");
 
@@ -13,6 +14,14 @@ sub pipeline {
     my ( $self, $mail ) = @_;
 
     if ( !defined( $self->supports("PIPELINING") ) ) {
+        my $message = qq(Server does not support PIPELINING, banner was ").$self->banner().qq(");
+        push @{ ${*$self}{'smtp_pipeline_errors'} },
+            {
+             command => "EHLO",
+             code    => "",
+             message => $message,
+         };
+        warn $message;
         return;
     }
 
@@ -244,7 +253,7 @@ Net::SMTP::Pipelining - Send email using ESMTP PIPELINING extension
 
 =head1 VERSION
 
-This document describes Net::SMTP::Pipelining version 0.0.1
+This document describes Net::SMTP::Pipelining version 0.0.2
 
 
 =head1 SYNOPSIS
@@ -396,6 +405,10 @@ one of which is rejected by the server, will return false, but the message will
 be sent to the one valid recipient anyway. See below methods for determining
 what exactly happens during the SMTP transaction.
 
+If the server does not support PIPELINING (according to the initial connection
+banner), C<pipeline> returns false, throws a warning (s.below DIAGNOSTICS
+section) and puts the warning message into $smtp->pipe_errors()->[0]{message};
+
 =item pipe_flush ()
 
     $smtp->pipe_flush() or warn "an error occurred";
@@ -498,6 +511,11 @@ Convenience method which returns C<< $smtp->pipe_recipients()->{failed} >>
 
 Could not send the final <CRLF>.<CRLF> to terminate a message (value of $!
 is given).
+
+=item C<< Server does not support PIPELINING, banner was "%s" >>
+
+The server did not report the PIPELININg extension in it's connection banner,
+refusing to attempt a send via PIPELINING.
 
 =back
 

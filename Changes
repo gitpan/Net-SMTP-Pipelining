@@ -1,5 +1,9 @@
 Revision history for Net-SMTP-Pipelining
 
-0.0.1  Tue Feb  17 20:31:58 2009
-       Initial release.
+0.0.2   Sun Feb 22 14:42:00 2009
+        - Added error message for servers that don't support PIPELINING
+        - Fixed spurios test errors
+
+0.0.1   Tue Feb  17 20:31:58 2009
+        - Initial release.
 
