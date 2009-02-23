@@ -1,12 +1,11 @@
 package Net::SMTP::Pipelining;
 
-use version; $VERSION = qv('0.0.2');
+use version; $VERSION = qv('0.0.3');
 
 use strict;
 use warnings;
 use Net::Cmd;
 use IO::Socket;
-use Data::Dump::Streamer;
 
 use base("Net::SMTP");
 
@@ -253,7 +252,7 @@ Net::SMTP::Pipelining - Send email using ESMTP PIPELINING extension
 
 =head1 VERSION
 
-This document describes Net::SMTP::Pipelining version 0.0.2
+This document describes Net::SMTP::Pipelining version 0.0.3
 
 
 =head1 SYNOPSIS
