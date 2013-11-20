@@ -1,5 +1,8 @@
 Revision history for Net-SMTP-Pipelining
 
+0.0.4   Wed Nov 20 12:55:00 2013
+        - Fixed test failure due to behavioural change in Net::Server::Mail (fixes RT #80532)
+
 0.0.3   Mon Feb 23 12:03:00 2009
         - Removed faux dependency on Data::Dump::Streamer
 

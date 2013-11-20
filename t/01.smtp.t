@@ -116,15 +116,30 @@ SKIP: {
         my $scodes = $_ == 1 ? [250,250,354] : [ 250,250,250,354];
         is_deeply( $smtp->pipe_codes(), $scodes, "Expected server return codes match");
 
-        my @smgs = ( [ qq(message sent\n) ],
-                     [ qq(sender <$address[1]> OK\n) ],
-                     [ qq(recipient <$address[$_]> OK\n) ],
-                     [ qq(Start mail input; end with <CRLF>.<CRLF>\n) ],
-                );
+        my $res = $smtp->pipe_messages();
+        my @smgs;
+
+        # Net::Server::Mail changed the handling of email addresses in version 0.18
+        # The following is a fudge to work around this and avoid spurious test warnings
+        if ($res->[0][0] =~ m/sender </ ||  $res->[1][0] =~ m/sender </  ) {
+            @smgs = ( [ qq(message sent\n) ],
+                      [ qq(sender <$address[1]> OK\n) ],
+                      [ qq(recipient <$address[$_]> OK\n) ],
+                      [ qq(Start mail input; end with <CRLF>.<CRLF>\n) ],
+                  );
+        } else {
+            @smgs = ( [ qq(message sent\n) ],
+                      [ qq(sender $address[1] OK\n) ],
+                      [ qq(recipient $address[$_] OK\n) ],
+                      [ qq(Start mail input; end with <CRLF>.<CRLF>\n) ],
+                  );
+        }
         shift @smgs if ($_ == 1);
-        is_deeply( $smtp->pipe_messages(), \@smgs,
+
+        is_deeply( $res , \@smgs,
                    qq(Expected server return messages match)
               );
+
         is_deeply( $smtp->pipe_sent(),
                    [
                     qq(MAIL FROM: <$address[1]>),

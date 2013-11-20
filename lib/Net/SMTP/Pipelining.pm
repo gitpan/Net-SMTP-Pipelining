@@ -1,6 +1,6 @@
 package Net::SMTP::Pipelining;
 
-use version; $VERSION = qv('0.0.3');
+use version; $VERSION = qv('0.0.4');
 
 use strict;
 use warnings;
@@ -252,7 +252,7 @@ Net::SMTP::Pipelining - Send email using ESMTP PIPELINING extension
 
 =head1 VERSION
 
-This document describes Net::SMTP::Pipelining version 0.0.3
+This document describes Net::SMTP::Pipelining version 0.0.4
 
 
 =head1 SYNOPSIS
@@ -579,7 +579,7 @@ Marc Beyer  C<< <japh@tirwhan.org> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2009, Marc Beyer C<< <japh@tirwhan.org> >>. All rights reserved.
+Copyright (c) 2009-2013, Marc Beyer C<< <japh@tirwhan.org> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
